@@ -1,0 +1,3 @@
+[submodule "WingPyUtils"]
+	path = WingPyUtils
+	url = https://github.com/WingGao/WingPyUtils.git

@@ -5,7 +5,7 @@ from models import Project
 from django.conf import settings
 import os
 from django.views import static
-import urllib
+import WingPyUtils.http as whttp
 
 
 # Create your views here.
@@ -22,7 +22,7 @@ def create_work(request):
 def project(request, pid):
     p = Project.objects.get(id=pid)
     if not os.path.exists(p.get_path('index.html')):
-        download(p.url, p.get_path('index.html'))
+        whttp.download(p.url, p.get_path('index.html'))
     return static.serve(request, 'index.html', p.get_path())
 
 
@@ -30,21 +30,21 @@ def proxy(request):
     pid = request.META['HTTP_REFERER'].split('/')[-1]
     proj = Project.objects.get(id=pid)
     lpath = request.path
+
     if lpath.startswith('/project/'):
         # 相对路径
+        proj_url = proj.url.rsplit('/', 1)[0]
         local_path = lpath[9:]
-        orgin_url = proj.url + local_path
-        local_full_path = proj.get_path(local_path)
+
+    else:
+        # 绝对路径
+        local_path = lpath[1:]
+        proj_url = '/'.join(proj.url.split('/')[:3])
+
+    orgin_url = proj_url + '/' + local_path
+    local_full_path = proj.get_path(local_path)
 
     if not os.path.exists(local_full_path):
-        dirname = os.path.dirname(local_full_path)
-        if not os.path.exists(dirname):
-            os.mkdir(dirname)
-
-        download(orgin_url, local_full_path)
+        whttp.download(orgin_url, local_full_path, create_dirs=True)
 
     return static.serve(request, local_path, proj.get_path())
-
-
-def download(url, name):
-    urllib.urlretrieve(url, name)
