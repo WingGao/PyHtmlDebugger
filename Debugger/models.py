@@ -8,8 +8,8 @@ import os
 # Create your models here.
 
 class Project(models.Model):
-    name = models.CharField(max_length=255, unique=True)
-    url = models.URLField()
+    name = models.CharField(max_length=255)
+    url = models.URLField(unique=True)
 
     def get_path(self, fname=''):
         return os.path.join(settings.WORK_DIR, str(self.id), fname)
