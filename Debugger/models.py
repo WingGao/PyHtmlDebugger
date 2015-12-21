@@ -9,6 +9,7 @@ import os
 
 class Project(models.Model):
     name = models.CharField(max_length=255, unique=True)
+    url = models.URLField()
 
-    def get_path(self):
-        return os.path.join(settings.WORK_DIR, str(self.id))
+    def get_path(self, fname=''):
+        return os.path.join(settings.WORK_DIR, str(self.id), fname)
