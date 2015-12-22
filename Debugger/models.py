@@ -17,3 +17,4 @@ class Project(models.Model):
     def get_host(self):
         res = self.url.split('://')[-1]
         return res.split('/', 1)[0]
+

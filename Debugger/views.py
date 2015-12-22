@@ -27,6 +27,7 @@ def project(request, pid):
         fpath = p.get_path('index_o.html')
         whttp.download(p.url, fpath)
         replace_site_to_local(fpath, dpath, p.get_host())
+    request.session['pid'] = pid
     return static.serve(request, 'index.html', p.get_path())
 
 
@@ -53,11 +54,16 @@ def replace_site_to_local(fpath, dpath, host):
 
 
 def proxy(request):
-    pid = request.META['HTTP_REFERER'].split('/')[-1]
+    try:
+        pid = request.META['HTTP_REFERER'].split('/')[3].split('_')[1]
+    except:
+        # todo 多状态问题
+        pid = request.session['pid']
+
     proj = Project.objects.get(id=pid)
     lpath = request.path
 
-    if lpath.startswith('/project/'):
+    if lpath.startswith('/project_'):
         # 相对路径
         proj_url = proj.url.rsplit('/', 1)[0]
         local_path = lpath[9:]

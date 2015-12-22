@@ -22,6 +22,6 @@ urlpatterns = [
     url(r'^admin/', admin.site.urls),
     url(r'^$', dviews.works),
     url(r'^create', dviews.create_work),
-    url(r'^project/(?P<pid>\d+)$', dviews.project),
+    url(r'^project_(?P<pid>\d+)/$', dviews.project),
     url(r'^', dviews.proxy),
 ]

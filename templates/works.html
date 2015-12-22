@@ -30,7 +30,7 @@
 <div>
     <ol>
         {% for project in projects %}
-            <li><a href="/project/{{ project.id }}">{{ project.name }}</a>
+            <li><a href="/project_{{ project.id }}/">{{ project.name }}</a>
                 [<a href="{{ project.url }}" target="_blank">SOURCE</a>]
             </li>
         {% endfor %}
