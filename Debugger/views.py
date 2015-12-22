@@ -6,6 +6,7 @@ from django.conf import settings
 import os
 from django.views import static
 import WingPyUtils.http as whttp
+import re
 
 
 # Create your views here.
@@ -21,9 +22,34 @@ def create_work(request):
 
 def project(request, pid):
     p = Project.objects.get(id=pid)
-    if not os.path.exists(p.get_path('index.html')):
-        whttp.download(p.url, p.get_path('index.html'))
+    dpath = p.get_path('index.html')
+    if not os.path.exists(dpath):
+        fpath = p.get_path('index_o.html')
+        whttp.download(p.url, fpath)
+        replace_site_to_local(fpath, dpath, p.get_host())
     return static.serve(request, 'index.html', p.get_path())
+
+
+def replace_site_to_local(fpath, dpath, host):
+    res = None
+    with open(fpath, 'r') as f:
+        for i in range(2):
+            f.seek(0)
+            html = f.read()
+            if i == 0:
+                # 默认内容
+                pass
+            elif i == 1:
+                html = html.decode('utf8')
+            try:
+                # 替换css、js、图片
+                res = re.sub(r'(src|<link[^>]+href)="\w*?://%s/' % str(host), r'\1="/', html)
+                break
+            except UnicodeDecodeError:
+                pass
+    with open(dpath, 'w') as f:
+        if res is not None and len(res) > 0:
+            f.write(res)
 
 
 def proxy(request):

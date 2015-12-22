@@ -13,3 +13,7 @@ class Project(models.Model):
 
     def get_path(self, fname=''):
         return os.path.join(settings.WORK_DIR, str(self.id), fname)
+
+    def get_host(self):
+        res = self.url.split('://')[-1]
+        return res.split('/', 1)[0]
