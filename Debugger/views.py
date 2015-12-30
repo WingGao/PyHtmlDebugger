@@ -54,22 +54,24 @@ def replace_site_to_local(fpath, dpath, host):
 
 
 def proxy(request):
-    try:
-        pid = request.META['HTTP_REFERER'].split('/')[3].split('_')[1]
-    except:
-        # todo 多状态问题
-        pid = request.session['pid']
-
-    proj = Project.objects.get(id=pid)
     lpath = request.path
 
     if lpath.startswith('/project_'):
         # 相对路径
+        lps = lpath.split('/')
+        pid = lps[1].split('_')[1]
+        proj = Project.objects.get(id=pid)
         proj_url = proj.url.rsplit('/', 1)[0]
-        local_path = lpath[9:]
-
+        local_path = '/'.join(lps[2:])
     else:
         # 绝对路径
+        try:
+            pid = request.META['HTTP_REFERER'].split('/')[3].split('_')[1]
+        except:
+            # todo 多状态问题
+            pid = request.session['pid']
+
+        proj = Project.objects.get(id=pid)
         local_path = lpath[1:]
         proj_url = '/'.join(proj.url.split('/')[:3])
 
