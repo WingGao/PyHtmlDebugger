@@ -7,6 +7,7 @@ import os
 from django.views import static
 import WingPyUtils.http as whttp
 import re
+import requests
 
 
 # Create your views here.
@@ -75,10 +76,20 @@ def proxy(request):
         local_path = lpath[1:]
         proj_url = '/'.join(proj.url.split('/')[:3])
 
-    orgin_url = proj_url + '/' + local_path
+    origin_url = proj_url + '/' + local_path
     local_full_path = proj.get_path(local_path)
-
+    local_full_path = fill_ext(local_full_path)
+    if request.method == 'POST':
+        return HttpResponse(requests.post(origin_url, request.POST).content)
     if not os.path.exists(local_full_path):
-        whttp.download(orgin_url, local_full_path, create_dirs=True)
+        whttp.download(origin_url, local_full_path, create_dirs=True)
 
-    return static.serve(request, local_path, proj.get_path())
+    return static.serve(request, fill_ext(local_path), proj.get_path())
+
+
+def fill_ext(path):
+    ps = path.rsplit('.')
+    if len(ps) >= 2:
+        return path
+    else:
+        return path + '.html'
